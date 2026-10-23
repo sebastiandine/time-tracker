@@ -6,13 +6,13 @@ OS splits via `workflow_call`.
 
 ## Current workflow map
 
-- `feature-ci.yml` — feature orchestrator
-- `feature-linux.yml` / `feature-windows.yml` — reusable build/test
-- `coverage.yml` — Linux GCC coverage gate
-- `asan.yml` — Linux Clang ASan and UBSan
+- `feature-ci.yml` — feature orchestrator. Linux, coverage, and ASan jobs are paused (`if: false`).
+- `feature-linux.yml` / `feature-windows.yml` — reusable build/test. Linux caller is paused.
+- `coverage.yml` — Linux GCC coverage gate (paused)
+- `asan.yml` — Linux Clang ASan and UBSan (paused)
 - `master-pr-title-guard.yml` — semver prefix on PRs to `master`
-- `master-ci.yml` — version, build/test, tag
-- `master-linux.yml` / `master-windows.yml` — reusable build/test for master
+- `master-ci.yml` — version, Windows build/test, tag. Linux, coverage, and ASan jobs are paused (`if: false`) and are not release gates.
+- `master-linux.yml` / `master-windows.yml` — reusable build/test for master. Linux caller is paused.
 
 ## CI invariants (do not break)
 

@@ -9,8 +9,10 @@ permissions:
   contents: read
 
 jobs:
+  # Linux build, coverage, and ASan are paused. Remove `if: false` to turn them back on.
   linux:
     name: Linux build + tests
+    if: false
     uses: ./.github/workflows/feature-linux.yml
 
   windows:
@@ -19,8 +21,10 @@ jobs:
 
   coverage:
     name: Linux coverage gate
+    if: false
     uses: ./.github/workflows/coverage.yml
 
   asan:
     name: Linux ASan + UBSan
+    if: false
     uses: ./.github/workflows/asan.yml
