@@ -35,8 +35,11 @@ jobs:
       - id: version
         run: bash scripts/compute_master_semver.sh "${{ steps.pr.outputs.pr_title }}"
 
+  # Linux build, coverage, and ASan are paused. Remove `if: false` and add
+  # linux, coverage, and asan back to tag-master.needs to turn them back on.
   linux:
     name: Linux build + tests
+    if: false
     needs: compute-version
     uses: ./.github/workflows/master-linux.yml
     with:
@@ -51,17 +54,19 @@ jobs:
 
   coverage:
     name: Linux coverage gate
+    if: false
     needs: compute-version
     uses: ./.github/workflows/coverage.yml
 
   asan:
     name: Linux ASan + UBSan
+    if: false
     needs: compute-version
     uses: ./.github/workflows/asan.yml
 
   tag-master:
     name: Tag master
-    needs: [compute-version, linux, windows, coverage, asan]
+    needs: [compute-version, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

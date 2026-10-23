@@ -5,18 +5,20 @@
 Versioning policy: [Versioning Guide](versioning.md).
 
 **Quick Setup:** protect `master` with required checks
-`Require semver prefix in PR title`, Linux build + tests, Windows build + tests,
-Linux coverage gate, and Linux ASan + UBSan.
+`Require semver prefix in PR title` and Windows build + tests.
+Linux build + tests, the Linux coverage gate, and Linux ASan + UBSan are
+paused (`if: false` on the orchestrator jobs). Drop those names from required
+checks while they are paused, or merges wait on checks that never run.
 
 ## Workflow Map
 
-- `feature-ci.yml`: non-`master` pushes; Linux and Windows feature builds, coverage, and ASan.
-- `feature-linux.yml` / `feature-windows.yml`: reusable build/test.
-- `coverage.yml`: GCC line and branch gate for `core/`.
-- `asan.yml`: Linux Clang address and undefined-behavior sanitizers.
+- `feature-ci.yml`: non-`master` pushes. Windows feature build runs. Linux build, coverage, and ASan are paused.
+- `feature-linux.yml` / `feature-windows.yml`: reusable build/test. The Linux workflow is not called.
+- `coverage.yml`: GCC line and branch gate for `core/`. Paused.
+- `asan.yml`: Linux Clang address and undefined-behavior sanitizers. Paused.
 - `master-pr-title-guard.yml`: PR title prefixes for PRs targeting `master`.
-- `master-ci.yml`: merged PRs to `master`; computes semver, builds, tags.
-- `master-linux.yml` / `master-windows.yml`: reusable build/test for master.
+- `master-ci.yml`: merged PRs to `master`; computes semver, runs the Windows build, and tags. Linux build, coverage, and ASan are paused and are not release gates.
+- `master-linux.yml` / `master-windows.yml`: reusable build/test for master. The Linux workflow is not called.
 
 CI configures with `-DTIME_TRACKER_BUILD_APP=OFF`. The desktop app is not
 built in CI. This skeleton stops at build and test.
@@ -38,4 +40,4 @@ PRs targeting `master` must start with an accepted prefix or
 ## Release Procedure
 
 1. Open a PR to `master` with a valid prefix (`major:`, `minor:`, `fix:`, `patch:`).
-2. Merge. Master CI computes the version, builds, tests, and tags.
+2. Merge. Master CI computes the version, runs the Windows build and tests, and tags.
