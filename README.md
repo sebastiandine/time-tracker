@@ -51,6 +51,7 @@ Contributor docs live in [`docs/`](docs/README.md). Start with
 [Building Locally](docs/building-locally.md). How the timer behaves is in
 [Time tracking](docs/time-tracking.md).
 
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE). Qt is linked as a shared library (LGPL). SQLite is public domain.
