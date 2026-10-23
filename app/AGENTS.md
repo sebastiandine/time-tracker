@@ -15,7 +15,7 @@ The `time-tracker` executable — composition root. Read the root `AGENTS.md` fi
 1. Keep this target thin. More than construction and wiring belongs in `core/` or `ui/`.
 2. Long-lived services are `std::unique_ptr` members of `main`, created before the window so they outlive it.
 3. Do not include `sqlite3.h`. Adapter headers from `core/include/timetracker/infra/` are allowed.
-4. Windows uses the GUI subsystem. POST_BUILD copies the MinGW runtime and runs `windeployqt` when it is on PATH.
+4. Windows uses the GUI subsystem. POST_BUILD copies the MinGW runtime and runs `windeployqt` or `windeployqt6` when one is on PATH. CI packages that bundle; see `docs/windows-installer.md`.
 
 ## Commands
 

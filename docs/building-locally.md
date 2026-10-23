@@ -64,7 +64,8 @@ Tests: `ctest --preset ninja` or `ctest --test-dir build --output-on-failure`.
 
 The executable is `build/bin/time-tracker` (`time-tracker.exe` on Windows).
 A post-build step copies the MinGW runtime DLLs and runs `windeployqt` so
-the exe can start from Explorer.
+the exe can start from Explorer. The NSIS installer that CI publishes is
+described in [Windows Installer](windows-installer.md).
 
 ## clangd
 

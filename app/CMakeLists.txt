@@ -42,9 +42,11 @@ if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 if(WIN32)
-    find_program(WINDEPLOYQT_EXECUTABLE windeployqt
+    find_program(WINDEPLOYQT_EXECUTABLE
+        NAMES windeployqt windeployqt6
         HINTS "${Qt6_DIR}/../../../bin" "${Qt6_DIR}/../../../../bin")
     if(WINDEPLOYQT_EXECUTABLE)
+        message(STATUS "[time_tracker] windeployqt: ${WINDEPLOYQT_EXECUTABLE}")
         add_custom_command(TARGET time_tracker POST_BUILD
             COMMAND "${WINDEPLOYQT_EXECUTABLE}" --no-translations "$<TARGET_FILE:time_tracker>"
             VERBATIM)

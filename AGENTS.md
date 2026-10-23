@@ -29,7 +29,7 @@ Desktop time tracker: categories, main topics, and subtopics, with one timer tha
 - **Compilers**: Clang 14+ preferred, MinGW-w64 GCC 11+ fallback on Windows. **Do not** add MSVC support.
 - **C++ standard**: C++20 (`CMAKE_CXX_STANDARD 20`, `CXX_EXTENSIONS OFF`).
 - **Build system**: CMake 3.22+ with `FetchContent`. Pin every dep by tag in `cmake/Dependencies.cmake`; never use `master`.
-- **Desktop UI**: Qt 6.5+ Widgets, shared libraries, found with `find_package`. The Windows kit is MSYS2 UCRT64. CI builds with `TIME_TRACKER_BUILD_APP=OFF`.
+- **Desktop UI**: Qt 6.5+ Widgets, shared libraries, found with `find_package`. The Windows kit is MSYS2 UCRT64. Windows CI installs that kit, builds the app, and publishes a portable zip plus an NSIS installer. Linux CI configures with `TIME_TRACKER_BUILD_APP=OFF`.
 
 ## Key dependencies
 

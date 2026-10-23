@@ -1,9 +1,12 @@
-name: Master Windows Build and Test
+name: Master Windows Build, Test, and Package
 
 on:
   workflow_call:
     inputs:
       version:
+        required: true
+        type: string
+      merge_commit_sha:
         required: true
         type: string
 
@@ -21,6 +24,8 @@ jobs:
         shell: msys2 {0}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.merge_commit_sha }}
       - uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -31,10 +36,12 @@ jobs:
             mingw-w64-ucrt-x86_64-cmake
             mingw-w64-ucrt-x86_64-ninja
             mingw-w64-ucrt-x86_64-ccache
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-nsis
       - uses: actions/cache@v4
         with:
           path: ${{ env.CCACHE_DIR_WIN }}
-          key: ccache-windows-master-v1
+          key: ccache-windows-master-v2
           restore-keys: |
             ccache-windows-master-
             ccache-windows-
@@ -48,9 +55,34 @@ jobs:
           cmake -S . -B build -G Ninja
           -DCMAKE_BUILD_TYPE=Release
           -DTIME_TRACKER_BUILD_TESTS=ON
-          -DTIME_TRACKER_BUILD_APP=OFF
+          -DTIME_TRACKER_BUILD_APP=ON
           -DTIME_TRACKER_APP_VERSION="${{ inputs.version }}"
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
       - run: cmake --build build --parallel
       - run: ctest --test-dir build --output-on-failure
+      - name: Remove test executable from bundle
+        run: rm -f build/bin/time_tracker_core_tests.exe build/bin/time_tracker_core_tests
+      - name: Collect runtime DLL dependencies
+        run: bash scripts/collect_windows_runtime.sh
+      - name: Verify runtime dependencies are resolved
+        run: bash scripts/verify_windows_runtime.sh
+      - name: Build Windows installer
+        run: makensis -DAPP_VERSION="${{ inputs.version }}" scripts/installer.nsi
+      - name: Stage Windows artifact folder
+        run: |
+          rm -rf dist/time-tracker-windows
+          mkdir -p dist/time-tracker-windows
+          cp -a build/bin/. dist/time-tracker-windows/
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: time-tracker-windows-${{ inputs.version }}.zip
+          path: dist/time-tracker-windows
+          if-no-files-found: error
+      - name: Upload Windows installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: time-tracker-windows-installer-${{ inputs.version }}
+          path: time-tracker-windows-installer.exe
+          if-no-files-found: error
