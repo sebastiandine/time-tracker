@@ -1,0 +1,42 @@
+name: Feature Linux Build and Test
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build-linux:
+    name: Linux build + tests
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute feature version
+        run: |
+          VERSION="$(bash scripts/compute_feature_version.sh "${GITHUB_REF_NAME}" "${GITHUB_SHA}")"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y clang ninja-build ccache cmake
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-linux-${{ github.ref_name }}-v1
+          restore-keys: |
+            ccache-linux-${{ github.ref_name }}-
+            ccache-linux-
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_BUILD_TYPE=Release
+          -DTIME_TRACKER_BUILD_TESTS=ON
+          -DTIME_TRACKER_BUILD_APP=OFF
+          -DTIME_TRACKER_APP_VERSION="${VERSION}"
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - run: cmake --build build --parallel
+      - run: ctest --test-dir build --output-on-failure

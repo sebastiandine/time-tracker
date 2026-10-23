@@ -1,0 +1,40 @@
+name: Linux coverage gate
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: Linux coverage gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y gcc g++ ninja-build cmake gcovr
+      - name: Configure coverage
+        run: >
+          cmake -S . -B build-cov -G Ninja
+          -DCMAKE_C_COMPILER=gcc
+          -DCMAKE_CXX_COMPILER=g++
+          -DCMAKE_BUILD_TYPE=Debug
+          -DTIME_TRACKER_BUILD_TESTS=ON
+          -DTIME_TRACKER_BUILD_APP=OFF
+          -DCMAKE_C_FLAGS=--coverage
+          -DCMAKE_CXX_FLAGS=--coverage
+      - name: Build and test
+        run: >
+          cmake --build build-cov --target time_tracker_core_tests --parallel &&
+          ctest --test-dir build-cov --output-on-failure
+      - name: Enforce coverage bars
+        run: >
+          gcovr -r . --object-directory build-cov
+          --filter "core/"
+          --exclude "build-cov/_deps/"
+          --exclude-directories "build-cov/_deps"
+          --exclude-throw-branches
+          --fail-under-line 80
+          --fail-under-branch 70
+          --print-summary

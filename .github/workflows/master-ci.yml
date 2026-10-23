@@ -1,0 +1,72 @@
+name: Master CI
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  compute-version:
+    name: Determine semantic version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release_tag: ${{ steps.version.outputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pulls = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner, repo, commit_sha: context.sha,
+            });
+            if (!pulls.data.length) {
+              core.setFailed(`No PR found for commit ${context.sha}. Release flow expects merges into master through PRs.`);
+              return;
+            }
+            const mergedPr = pulls.data.find((pr) => pr.merged_at) ?? pulls.data[0];
+            core.setOutput("pr_title", mergedPr.title);
+      - id: version
+        run: bash scripts/compute_master_semver.sh "${{ steps.pr.outputs.pr_title }}"
+
+  linux:
+    name: Linux build + tests
+    needs: compute-version
+    uses: ./.github/workflows/master-linux.yml
+    with:
+      version: ${{ needs.compute-version.outputs.version }}
+
+  windows:
+    name: Windows build + tests
+    needs: compute-version
+    uses: ./.github/workflows/master-windows.yml
+    with:
+      version: ${{ needs.compute-version.outputs.version }}
+
+  coverage:
+    name: Linux coverage gate
+    needs: compute-version
+    uses: ./.github/workflows/coverage.yml
+
+  asan:
+    name: Linux ASan + UBSan
+    needs: compute-version
+    uses: ./.github/workflows/asan.yml
+
+  tag-master:
+    name: Tag master
+    needs: [compute-version, linux, windows, coverage, asan]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.compute-version.outputs.release_tag }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true

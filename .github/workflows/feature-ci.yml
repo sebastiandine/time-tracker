@@ -1,0 +1,26 @@
+name: Feature CI
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux build + tests
+    uses: ./.github/workflows/feature-linux.yml
+
+  windows:
+    name: Windows build + tests
+    uses: ./.github/workflows/feature-windows.yml
+
+  coverage:
+    name: Linux coverage gate
+    uses: ./.github/workflows/coverage.yml
+
+  asan:
+    name: Linux ASan + UBSan
+    uses: ./.github/workflows/asan.yml

@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 22, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": { "CMAKE_EXPORT_COMPILE_COMMANDS": "ON" }
+    },
+    {
+      "name": "ninja",
+      "displayName": "Ninja Release",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "TIME_TRACKER_BUILD_TESTS": "ON",
+        "TIME_TRACKER_BUILD_APP": "ON"
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "displayName": "Ninja Debug",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "TIME_TRACKER_BUILD_TESTS": "ON",
+        "TIME_TRACKER_BUILD_APP": "ON"
+      }
+    },
+    {
+      "name": "mingw",
+      "displayName": "MinGW Makefiles Release",
+      "inherits": "base",
+      "generator": "MinGW Makefiles",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "TIME_TRACKER_BUILD_TESTS": "ON",
+        "TIME_TRACKER_BUILD_APP": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "ninja", "configurePreset": "ninja" },
+    { "name": "ninja-debug", "configurePreset": "ninja-debug" },
+    { "name": "mingw", "configurePreset": "mingw" }
+  ],
+  "testPresets": [
+    { "name": "ninja", "configurePreset": "ninja", "output": { "outputOnFailure": true } },
+    { "name": "ninja-debug", "configurePreset": "ninja-debug", "output": { "outputOnFailure": true } },
+    { "name": "mingw", "configurePreset": "mingw", "output": { "outputOnFailure": true } }
+  ]
+}
