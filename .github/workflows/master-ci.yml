@@ -51,6 +51,7 @@ jobs:
     uses: ./.github/workflows/master-windows.yml
     with:
       version: ${{ needs.compute-version.outputs.version }}
+      merge_commit_sha: ${{ github.sha }}
 
   coverage:
     name: Linux coverage gate
@@ -69,9 +70,31 @@ jobs:
     needs: [compute-version, windows]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: time-tracker-windows-${{ needs.compute-version.outputs.version }}.zip
+          path: release/windows
+
+      - name: Download Windows installer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: time-tracker-windows-installer-${{ needs.compute-version.outputs.version }}
+          path: release/installer
+
+      - name: Package release assets
+        run: |
+          mkdir -p release-assets
+          VERSION="${{ needs.compute-version.outputs.version }}"
+          (
+            cd release/windows
+            zip -r "../../release-assets/time-tracker-windows-${VERSION}.zip" .
+          )
+          cp release/installer/time-tracker-windows-installer.exe "release-assets/time-tracker-windows-installer-${VERSION}.exe"
+
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.compute-version.outputs.release_tag }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
+          files: release-assets/*

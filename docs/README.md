@@ -14,6 +14,7 @@ This folder contains contributor documentation. Start with
 
 - [ci-cd-guide.md](ci-cd-guide.md): CI workflows, merge guards, and tagging.
 - [versioning.md](versioning.md): feature-build version format and master semver.
+- [windows-installer.md](windows-installer.md): NSIS installer and the portable Windows zip.
 
 ## Build And Local Setup
 

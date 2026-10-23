@@ -16,6 +16,12 @@ Workflow wiring: [CI/CD Guide](ci-cd-guide.md).
 - Embedded `TIME_TRACKER_APP_VERSION`: feature CI uses
   `<branch>-<sha>`; master CI uses semver; local is
   `${PROJECT_VERSION} (localbuild)` unless overridden.
+- That same string is the `<version>` in Windows artifact names. Feature
+  runs upload `time-tracker-windows-<version>.zip` and
+  `time-tracker-windows-installer-<version>`. Master releases attach
+  `time-tracker-windows-<version>.zip` and
+  `time-tracker-windows-installer-<version>.exe`. See
+  [Windows Installer](windows-installer.md).
 
 PR titles: `major: <summary>`, `minor: <summary>`, `fix: <summary>`,
 `patch: <summary>`.

@@ -13,15 +13,24 @@ checks while they are paused, or merges wait on checks that never run.
 ## Workflow Map
 
 - `feature-ci.yml`: non-`master` pushes. Windows feature build runs. Linux build, coverage, and ASan are paused.
-- `feature-linux.yml` / `feature-windows.yml`: reusable build/test. The Linux workflow is not called.
-- `coverage.yml`: GCC line and branch gate for `core/`. Paused.
-- `asan.yml`: Linux Clang address and undefined-behavior sanitizers. Paused.
+- `feature-linux.yml`: reusable Linux build/test. Not called while that job is paused. Configures with `-DTIME_TRACKER_BUILD_APP=OFF`.
+- `feature-windows.yml`: reusable Windows build, test, portable zip, and NSIS installer.
+- `coverage.yml`: GCC line and branch gate for `core/`. Paused. Configures with `-DTIME_TRACKER_BUILD_APP=OFF`.
+- `asan.yml`: Linux Clang address and undefined-behavior sanitizers. Paused. Configures with `-DTIME_TRACKER_BUILD_APP=OFF`.
 - `master-pr-title-guard.yml`: PR title prefixes for PRs targeting `master`.
-- `master-ci.yml`: merged PRs to `master`; computes semver, runs the Windows build, and tags. Linux build, coverage, and ASan are paused and are not release gates.
-- `master-linux.yml` / `master-windows.yml`: reusable build/test for master. The Linux workflow is not called.
+- `master-ci.yml`: merged PRs to `master`; computes semver, runs the Windows build, and publishes a GitHub release. Linux build, coverage, and ASan are paused and are not release gates.
+- `master-linux.yml`: reusable Linux build/test for master. Not called. Configures with `-DTIME_TRACKER_BUILD_APP=OFF`.
+- `master-windows.yml`: reusable Windows build, test, portable zip, and NSIS installer for the release.
 
-CI configures with `-DTIME_TRACKER_BUILD_APP=OFF`. The desktop app is not
-built in CI. This skeleton stops at build and test.
+Windows CI installs MSYS2 UCRT64 Qt 6 (`mingw-w64-ucrt-x86_64-qt6-base`) and NSIS, and configures with `-DTIME_TRACKER_BUILD_APP=ON`. Installer details: [Windows Installer](windows-installer.md).
+
+## Artifacts
+
+| Artifact | Format |
+|---|---|
+| `time-tracker-windows-<version>.zip` | Portable Windows bundle (`time-tracker.exe`, Qt, MinGW runtime) |
+| `time-tracker-windows-installer-<version>` | NSIS installer on the Actions run |
+| `time-tracker-windows-installer-<version>.exe` | NSIS installer attached to the master GitHub release |
 
 ## Version Flow
 
@@ -40,4 +49,4 @@ PRs targeting `master` must start with an accepted prefix or
 ## Release Procedure
 
 1. Open a PR to `master` with a valid prefix (`major:`, `minor:`, `fix:`, `patch:`).
-2. Merge. Master CI computes the version, runs the Windows build and tests, and tags.
+2. Merge. Master CI computes the version, builds and tests on Windows, and tags a GitHub release that includes the portable zip and the NSIS installer.

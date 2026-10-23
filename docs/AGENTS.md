@@ -10,6 +10,7 @@ Long-form contributor documentation outside the source tree.
 - `testing-and-test-code-of-conduct.md` — test workflow and standards.
 - `ci-cd-guide.md` — CI workflows, merge guards, versioning in CI.
 - `versioning.md` — feature-build version format and master semver rules.
+- `windows-installer.md` — NSIS installer and the portable Windows zip.
 - `time-tracking.md` — timer survival, notes, and statistics.
 - `database/schema.md` — tables, checks, and indexes.
 

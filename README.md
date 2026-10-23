@@ -44,6 +44,10 @@ ctest --preset ninja
 
 On Windows: `.\build\bin\time-tracker.exe`
 
+## Windows download
+
+A merged pull request to `master` publishes a GitHub release with `time-tracker-windows-<version>.zip` (portable exe and DLLs) and `time-tracker-windows-installer-<version>.exe`. Feature-branch runs upload the same artifacts on the Actions run. See [Windows installer](docs/windows-installer.md).
+
 ## Documentation
 
 Contributor docs live in [`docs/`](docs/README.md). Start with
