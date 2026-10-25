@@ -2,6 +2,7 @@
 
 #include "timetracker/domain/Records.hpp"
 #include "timetracker/services/CatalogService.hpp"
+#include "timetracker/services/DataLocationService.hpp"
 #include "timetracker/services/SettingsService.hpp"
 #include "timetracker/services/StatsService.hpp"
 #include "timetracker/services/TrackingService.hpp"
@@ -34,15 +35,20 @@ public:
      * @param tracking Timer service.
      * @param stats Statistics service.
      * @param settings Theme store.
+     * @param locations Data directory. A menu choice reopens the database.
      * @param version Version text for the title.
      * @param parent Parent widget. Normally null.
      */
     MainWindow(CatalogService& catalog, TrackingService& tracking, StatsService& stats,
-               SettingsService& settings, QString version, QWidget* parent = nullptr);
+               SettingsService& settings, DataLocationService& locations, QString version,
+               QWidget* parent = nullptr);
 
 private:
     void buildUi();
+    void buildDataMenu();
     void buildThemeMenu();
+    void loadTheme();
+    void chooseDataLocation();
     void reloadCatalog();
     void restoreSession(bool switchToTrack);
     void updateStatusBar();
@@ -54,6 +60,7 @@ private:
     TrackingService& tracking_;
     StatsService& stats_;
     SettingsService& settings_;
+    DataLocationService& locations_;
     QString version_;
     ThemePreference theme_{ThemePreference::System};
     CatalogSnapshot snapshot_;

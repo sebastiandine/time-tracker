@@ -4,9 +4,9 @@ The `time-tracker` executable — composition root. Read the root `AGENTS.md` fi
 
 ## File pointers
 
-- `main.cpp` — creates the process adapters, opens the database, and shows `MainWindow`. No business logic.
-- `ProcessEnvironment.cpp` — `getenv` adapter.
-- `ProcessFilesystem.cpp` — creates the data directory.
+- `main.cpp` — creates the process adapters, loads configuration, opens the database, and shows `MainWindow`. No business logic.
+- `ProcessEnvironment.cpp` — `getenv` adapter, including the variable list used by configuration.
+- `ProcessFilesystem.cpp` — creates directories and reads or replaces text files.
 - `SystemClock.cpp` — operating-system UTC clock.
 - `CMakeLists.txt` — links `time_tracker_ui`, `time_tracker_core`, and `sqlite3`. Does not link `time_tracker_warnings`.
 

@@ -4,11 +4,16 @@ Source of truth for the SQLite file opened by `SqliteDatabase`. Timer rules
 are [Time tracking](../time-tracking.md). The runner is
 `core/src/infra/SqliteDatabase.cpp`. `kSchemaVersion` is 1.
 
-The file is `%LOCALAPPDATA%\TimeTracker\time_tracker.db` on Windows and
-`$XDG_DATA_HOME/TimeTracker/time_tracker.db` (or
-`~/.local/share/TimeTracker/time_tracker.db`) elsewhere. WAL is on for files.
-Memory databases used by tests skip WAL. After migration an authorizer allows
-only ordinary reads and writes.
+By default the file is `%LOCALAPPDATA%\TimeTracker\time_tracker.db` on Windows
+and `$XDG_DATA_HOME/TimeTracker/time_tracker.db` (or
+`~/.local/share/TimeTracker/time_tracker.db`) elsewhere. **Data → Select Data
+Location...**, `config.json`, `.env`, `TIME_TRACKER_DATA_DIRECTORY`, or
+`--data-directory` can choose another directory. The file name stays
+`time_tracker.db`. A missing file is created. Migration creates the tables
+below and does not insert categories, topics, or time entries. WAL is on for
+files. Memory databases used by tests skip WAL. After migration an authorizer
+allows only ordinary reads and writes. The configuration cascade is in the
+root [README](../../README.md#configuration).
 
 ## Category
 

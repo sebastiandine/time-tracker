@@ -10,13 +10,17 @@
 
 #include <QAction>
 #include <QActionGroup>
+#include <QFileDialog>
 #include <QGuiApplication>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QStatusBar>
 #include <QStyleHints>
 #include <QTabWidget>
 #include <QSignalBlocker>
 #include <QTimer>
+
+#include <filesystem>
 
 #include <string>
 #include <utility>
@@ -24,24 +28,19 @@
 namespace timetracker::ui {
 
 MainWindow::MainWindow(CatalogService& catalog, TrackingService& tracking, StatsService& stats,
-                       SettingsService& settings, QString version, QWidget* parent)
+                       SettingsService& settings, DataLocationService& locations, QString version,
+                       QWidget* parent)
     : QMainWindow(parent),
       catalog_(catalog),
       tracking_(tracking),
       stats_(stats),
       settings_(settings),
+      locations_(locations),
       version_(std::move(version)) {
     buildUi();
+    buildDataMenu();
     buildThemeMenu();
-    auto stored = settings_.theme();
-    if (!stored) {
-        showError(this, stored.error());
-        theme_ = ThemePreference::System;
-    } else {
-        theme_ = stored.value();
-    }
-    applyTheme(theme_);
-    syncThemeChecks();
+    loadTheme();
     reloadCatalog();
     restoreSession(true);
 
@@ -79,6 +78,61 @@ void MainWindow::buildUi() {
             statistics_->refresh();
         }
     });
+}
+
+void MainWindow::buildDataMenu() {
+    auto* data = menuBar()->addMenu(QStringLiteral("Data"));
+    auto* select = data->addAction(QStringLiteral("Select Data Location..."));
+    connect(select, &QAction::triggered, this, &MainWindow::chooseDataLocation);
+}
+
+void MainWindow::loadTheme() {
+    auto stored = settings_.theme();
+    if (!stored) {
+        showError(this, stored.error());
+        theme_ = ThemePreference::System;
+    } else {
+        theme_ = stored.value();
+    }
+    applyTheme(theme_);
+    syncThemeChecks();
+}
+
+void MainWindow::chooseDataLocation() {
+    auto running = tracking_.current();
+    if (!running) {
+        showError(this, running.error());
+        return;
+    }
+    const bool wasRunning = running.value().has_value();
+    const auto start = QString::fromStdString(locations_.directory().generic_string());
+    const auto chosen = QFileDialog::getExistingDirectory(this, QStringLiteral("Select Data Location"),
+                                                          start);
+    if (chosen.isEmpty()) {
+        return;
+    }
+
+    const std::filesystem::path directory{chosen.toStdWString()};
+    auto selected = locations_.selectDirectory(directory);
+    if (!selected) {
+        showError(this, selected.error());
+        return;
+    }
+    if (selected.value().overridden) {
+        QMessageBox::information(this, QStringLiteral("Time Tracker"),
+                                 QString::fromStdString(selected.value().notice));
+        return;
+    }
+    if (!selected.value().switched) {
+        return;
+    }
+    if (wasRunning) {
+        QMessageBox::information(this, QStringLiteral("Time Tracker"),
+                                 QStringLiteral("A timer in the previous database keeps running."));
+    }
+    loadTheme();
+    reloadCatalog();
+    restoreSession(true);
 }
 
 void MainWindow::buildThemeMenu() {

@@ -98,4 +98,17 @@ Result<void> openUserDatabase(const IEnvironment& environment, IFilesystem& file
     return session.open(file.value());
 }
 
+Result<void> openDatabaseAt(const std::filesystem::path& directory, IFilesystem& files,
+                            IDatabaseSession& session) {
+    auto ensured = files.ensureDirectory(directory);
+    if (!ensured) {
+        return ensured;
+    }
+    auto file = databasePath(directory);
+    if (!file) {
+        return Result<void>::err(file.error());
+    }
+    return session.open(file.value());
+}
+
 }  // namespace timetracker

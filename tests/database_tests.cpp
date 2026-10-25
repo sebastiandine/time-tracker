@@ -8,6 +8,8 @@
 
 #include <sqlite3.h>
 
+#include <string>
+
 using namespace timetracker;
 
 namespace {
@@ -153,6 +155,21 @@ TEST_CASE("a file database opens") {
         SqliteDatabase db;
         auto opened = db.open(dir.path / "time_tracker.db");
         REQUIRE(opened.succeeded());
+    }
+}
+
+TEST_CASE("a new file database has no categories, topics, or time entries") {
+    test::TempDir dir;
+    SqliteDatabase db;
+    REQUIRE(db.open(dir.path / "time_tracker.db").succeeded());
+    const char* tables[] = {"Category", "MainTopic", "SubTopic", "TimeEntry"};
+    for (const char* table : tables) {
+        const auto sql = std::string("SELECT COUNT(*) FROM ") + table + ";";
+        sqlite3_stmt* query = nullptr;
+        REQUIRE(sqlite3_prepare_v2(db.handle(), sql.c_str(), -1, &query, nullptr) == SQLITE_OK);
+        REQUIRE(sqlite3_step(query) == SQLITE_ROW);
+        CHECK(sqlite3_column_int(query, 0) == 0);
+        sqlite3_finalize(query);
     }
 }
 

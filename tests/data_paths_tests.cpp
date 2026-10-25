@@ -9,6 +9,9 @@
 
 #include <map>
 #include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 using namespace timetracker;
 
@@ -20,10 +23,20 @@ public:
 
     [[nodiscard]] std::optional<std::string> get(std::string_view name) const override {
         const auto found = values.find(std::string{name});
-        if (found == values.end()) {
+        if (found == values.end() || found->second.empty()) {
             return std::nullopt;
         }
         return found->second;
+    }
+
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> entries() const override {
+        std::vector<std::pair<std::string, std::string>> listed;
+        for (const auto& [key, value] : values) {
+            if (!value.empty()) {
+                listed.emplace_back(key, value);
+            }
+        }
+        return listed;
     }
 };
 
@@ -42,6 +55,16 @@ public:
         if (error) {
             return Result<void>::err("cannot create directory");
         }
+        return Result<void>::ok();
+    }
+
+    [[nodiscard]] bool exists(const std::filesystem::path&) const override { return false; }
+
+    [[nodiscard]] Result<std::string> readText(const std::filesystem::path& path) override {
+        return Result<std::string>::err("not found: " + path.generic_string());
+    }
+
+    [[nodiscard]] Result<void> replaceText(const std::filesystem::path&, std::string_view) override {
         return Result<void>::ok();
     }
 };
@@ -179,6 +202,28 @@ TEST_CASE("a directory failure does not open the database") {
     files.fail = true;
     RecordingSession session;
     auto opened = openUserDatabase(environment, files, session);
+    CHECK_FALSE(opened.succeeded());
+    CHECK(opened.error() == "cannot create directory");
+    CHECK_FALSE(session.opened);
+}
+
+TEST_CASE("openDatabaseAt creates the directory and opens the database file") {
+    test::TempDir dir;
+    RecordingFiles files;
+    RecordingSession session;
+    auto opened = openDatabaseAt(dir.path / "chosen", files, session);
+    REQUIRE(opened.succeeded());
+    CHECK(session.opened);
+    CHECK(session.path.filename() == "time_tracker.db");
+    CHECK(session.path.parent_path().filename() == "chosen");
+}
+
+TEST_CASE("openDatabaseAt does not open when the directory cannot be created") {
+    test::TempDir dir;
+    RecordingFiles files;
+    files.fail = true;
+    RecordingSession session;
+    auto opened = openDatabaseAt(dir.path / "chosen", files, session);
     CHECK_FALSE(opened.succeeded());
     CHECK(opened.error() == "cannot create directory");
     CHECK_FALSE(session.opened);

@@ -16,6 +16,10 @@
 - `settings_tests.cpp` — theme values.
 - `database_tests.cpp` — schema, authorizer, backup, and constraints.
 - `data_paths_tests.cpp` — per-user directory confinement.
+- `data_location_tests.cpp` — switching the database directory.
+- `config_tests.cpp` — configuration cascade and data-directory overrides.
+- `json_tests.cpp` — JSON documents and unknown-key handling.
+- `text_file_tests.cpp` — durable text replace.
 - `time_format_tests.cpp` — UTC text and duration labels.
 
 ## Conventions
