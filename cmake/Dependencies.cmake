@@ -19,6 +19,17 @@ if(TIME_TRACKER_BUILD_TESTS)
     FetchContent_MakeAvailable(doctest)
 endif()
 
+message(STATUS "[time_tracker] Fetching nlohmann/json ...")
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG        v3.11.3
+    GIT_SHALLOW    TRUE
+)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_Install OFF CACHE INTERNAL "")
+FetchContent_MakeAvailable(nlohmann_json)
+
 message(STATUS "[time_tracker] Fetching SQLite amalgamation ...")
 FetchContent_Declare(
     sqlite_amalgamation

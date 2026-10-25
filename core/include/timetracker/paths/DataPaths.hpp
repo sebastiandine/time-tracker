@@ -63,4 +63,17 @@ inline constexpr std::string_view kDatabaseFileName = "time_tracker.db";
 [[nodiscard]] Result<void> openUserDatabase(const IEnvironment& environment, IFilesystem& files,
                                             IDatabaseSession& session);
 
+/**
+ * @brief Create @p directory if needed and open @c time_tracker.db inside it.
+ *
+ * A missing file is created. Migration builds empty tables and does not insert
+ * categories, topics, or time entries.
+ * @param directory Directory chosen by configuration or the Data menu. The user's grant.
+ * @param files Creates the directory.
+ * @param session Receives the database file. A previous connection is closed by the session.
+ * @return Success, or the first error from create or open.
+ */
+[[nodiscard]] Result<void> openDatabaseAt(const std::filesystem::path& directory, IFilesystem& files,
+                                          IDatabaseSession& session);
+
 }  // namespace timetracker

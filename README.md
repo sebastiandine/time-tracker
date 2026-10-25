@@ -10,7 +10,7 @@ C++20 project built with CMake.
 - `ui/`: Qt Widgets (`time_tracker_ui`)
 - `app/`: executable composition root (`time-tracker`)
 
-On Windows the database is `%LOCALAPPDATA%\TimeTracker\time_tracker.db`. Elsewhere it is `$XDG_DATA_HOME/TimeTracker/time_tracker.db`, or `~/.local/share/TimeTracker/time_tracker.db`.
+The database file is `time_tracker.db`. By default it lives in `%LOCALAPPDATA%\TimeTracker` on Windows and in `$XDG_DATA_HOME/TimeTracker` (or `~/.local/share/TimeTracker`) elsewhere. **Data → Select Data Location...** chooses another folder. A missing file there is created empty: no categories, topics, or time entries. See [Configuration](#configuration).
 
 ## Quick Start
 
@@ -56,6 +56,33 @@ Contributor docs live in [`docs/`](docs/README.md). Start with
 [Time tracking](docs/time-tracking.md).
 
 
+## Configuration
+
+Precedence (low to high): compiled defaults, then `config.json` in the
+system directory, the user directory, and the executable directory, then
+`.env` in that same directory order, then process environment variables,
+then command-line flags.
+
+| Directory | Windows | POSIX |
+|---|---|---|
+| System | `%ProgramData%\Time Tracker` | `/etc/time-tracker` |
+| User | `%APPDATA%\Time Tracker` | `$XDG_CONFIG_HOME` or `~/.config/time-tracker` |
+| Exe | directory of the executable | directory of the executable |
+
+A missing file is skipped. If no `config.json` exists, the app creates one
+from defaults next to the executable, or in the user directory when the
+executable directory is not writable. `.env` is never auto-created.
+
+The Data menu writes `config.json` only. A value set by `.env`, the process
+environment, or the command line stays in effect, and the dialog names that
+layer. The database file inside the chosen directory is always `time_tracker.db`.
+
+| Key | Type | Default | Required | Env | Flag | Description |
+|---|---|---|---|---|---|---|
+| dataDirectory | string | per-user Time Tracker directory | no | TIME_TRACKER_DATA_DIRECTORY | --data-directory | Directory that contains `time_tracker.db` |
+
+`dataDirectory` is an absolute path. A relative path fails startup.
+
 ## License
 
-This project is licensed under the [MIT License](LICENSE). Qt is linked as a shared library (LGPL). SQLite is public domain.
+This project is licensed under the [MIT License](LICENSE). Qt is linked as a shared library (LGPL). SQLite is public domain. nlohmann/json is MIT.

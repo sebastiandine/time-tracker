@@ -3,8 +3,12 @@ add_executable(time_tracker_core_tests
     time_format_tests.cpp
     stats_range_tests.cpp
     data_paths_tests.cpp
+    data_location_tests.cpp
     database_tests.cpp
     catalog_tests.cpp
+    config_tests.cpp
+    json_tests.cpp
+    text_file_tests.cpp
     tracking_tests.cpp
     stats_tests.cpp
     settings_tests.cpp

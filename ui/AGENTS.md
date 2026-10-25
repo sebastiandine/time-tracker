@@ -4,7 +4,7 @@
 
 ## File pointers
 
-- `include/timetracker/ui/MainWindow.hpp` — tabs, theme menu, open-timer restore.
+- `include/timetracker/ui/MainWindow.hpp` — tabs, Data menu, theme menu, open-timer restore.
 - `include/timetracker/ui/LibraryPage.hpp` — category, main topic, and subtopic editing.
 - `include/timetracker/ui/TrackPage.hpp` — start, stop, note, and recent entries.
 - `include/timetracker/ui/StatisticsPage.hpp` — range, category filter, charts, and totals.

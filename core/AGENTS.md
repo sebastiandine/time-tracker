@@ -10,6 +10,10 @@
 - `include/timetracker/infra/` — SQLite connection and repositories. `sqlite3.h` is included only from `src/infra/`.
 - `include/timetracker/time/` — UTC formatting and local statistics windows.
 - `include/timetracker/paths/DataPaths.hpp` — per-user directory and database path.
+- `include/timetracker/config/ConfigService.hpp` — data-directory cascade. The loader does not open the database.
+- `include/timetracker/services/DataLocationService.hpp` — menu choice that reopens `time_tracker.db`.
+- `include/timetracker/json/DocumentIo.hpp` — `loadJson` / `storeJson`. Not for UI headers.
+- `include/timetracker/infra/HostTextFile.hpp` — durable text replace used by the process filesystem.
 - `src/text/TextRules.hpp` — name and note limits. Not a public header.
 - `src/infra/SqlUtil.hpp` — statement helpers. Includes `sqlite3.h`. Infra `.cpp` files only.
 
